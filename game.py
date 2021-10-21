@@ -2,29 +2,40 @@ import pygame
 from sys import exit
 from random import randint , choice
 
+from pygame import surface
+
 
 class Player(pygame.sprite.Sprite):  # Inherit from Spritre class
 
     def __init__(self):  # Constractor
         super().__init__() # we are initializing the sprite class right inside the Player class so that we can access it
-        player_walk_1 = pygame.image.load('graphics/Player/player_walk_1.png').convert_alpha()  # image for player
-        player_walk_2 = pygame.image.load('graphics/Player/player_walk_2.png').convert_alpha()  # image for player
+        player_walk_1 = pygame.image.load('graphics/Player/Myplayer_walk_1.png').convert_alpha()  # image for player
+        player_walk_1 = pygame.transform.scale(player_walk_1, (100, 100))
+        player_walk_2 = pygame.image.load('graphics/Player/Myplayer_walk_2.png').convert_alpha()  # image for player
+        player_walk_2 = pygame.transform.scale(player_walk_2, (100, 100))
         self.player_walk = [player_walk_1 , player_walk_2]
         self.player_index = 0
-        self.player_jump = pygame.image.load('graphics/player/jump.png').convert_alpha()  # image for player jump
+        self.player_jump = pygame.image.load('graphics/player/Myjump.png').convert_alpha()  # image for player jump
+        self.player_jump= pygame.transform.scale(self.player_jump, (100, 100))
         # Now this class needed 2 attribute at the very minimum one is self.image and the other self.rect
         self.image = self.player_walk[self.player_index]
         self.rect = self.image.get_rect(midbottom=(80, 300))
         self.gravity = 0
 
-        self.jump_sound = pygame.mixer.Sound('audio/jump.mp3')
-        self.jump_sound.set_volume(0.3)
+        self.jump_sound1 = pygame.mixer.Sound('audio/jump1.mp3')
+        self.jump_sound1.set_volume(0.7)
+        self.jump_sound2 = pygame.mixer.Sound('audio/jump2.mp3')
+        self.jump_sound2.set_volume(0.7)
+
 
     def player_input(self):
         keys = pygame.key.get_pressed()
         if keys[pygame.K_SPACE] and self.rect.bottom >= 300:
-            self.gravity = -20
-            self.jump_sound.play()
+            self.gravity = -23
+            #self.jump_sound1.play()
+            var = randint(0 , 2)
+            if var == 0: self.jump_sound1.play()
+            else: self.jump_sound2.play()
     
     def apply_gravity(self):
         self.gravity += 1
@@ -53,13 +64,17 @@ class Obstacle(pygame.sprite.Sprite):
         super().__init__()
 
         if type == 'fly':
-            fly_1 = pygame.image.load('graphics/Fly/Fly1.png').convert_alpha()
-            fly_2 = pygame.image.load('graphics/Fly/Fly2.png').convert_alpha()
+            fly_1 = pygame.image.load('graphics/Fly/Fly5.png').convert_alpha()
+            fly_1 = pygame.transform.scale(fly_1, (75, 75))
+            fly_2 = pygame.image.load('graphics/Fly/Fly6.png').convert_alpha()
+            fly_2 = pygame.transform.scale(fly_2, (75, 75))
             self.frames = [fly_1 , fly_2]
-            y_pos = 210
+            y_pos = 190
         else:
-            snail_1 = pygame.image.load('graphics/snail/snail1.png').convert_alpha()  # image for snail 1
-            snail_2 = pygame.image.load('graphics/snail/snail2.png').convert_alpha()  # image for snail 2
+            snail_1 = pygame.image.load('graphics/snail/zombie1.png').convert_alpha()  # image for snail 1
+            snail_1 = pygame.transform.scale(snail_1, (80, 80))
+            snail_2 = pygame.image.load('graphics/snail/zombie2.png').convert_alpha()  # image for snail 2
+            snail_2 = pygame.transform.scale(snail_2, (80, 80))
             self.frames = [snail_1 , snail_2]
             y_pos = 300
         
@@ -104,13 +119,6 @@ def  obstacle_movement(obstacle_list):
     else:
         return []
 
-def collisions(player , obstacles):
-    if obstacles:
-        for obstacle_rect in obstacles:
-            if player.colliderect(obstacle_rect):
-                return False
-    return True
-
 def collisions_sprite():
     if pygame.sprite.spritecollide(player.sprite , obstacle_group, False):
         obstacle_group.empty()
@@ -136,15 +144,15 @@ def player_animation():
 pygame.init()
 screen = pygame.display.set_mode((800, 400))    # to create the display surface
 # setting up the title / caption of the game
-pygame.display.set_caption("Runner")
+pygame.display.set_caption("Brainless Zombie")
 clock = pygame.time.Clock()
 # font style , font size
 test_font = pygame.font.Font('font/Pixeltype.ttf', 50)
 
 game_active = False
 
-bg_Music = pygame.mixer.Sound('audio/music.wav')
-bg_Music.set_volume(0.1)
+bg_Music = pygame.mixer.Sound('audio/mu1.mp3')
+bg_Music.set_volume(0.5)
 bg_Music.play(loops = -1)
 
 
@@ -155,8 +163,10 @@ player.add(Player())
 obstacle_group = pygame.sprite.Group()
 
 # background image for sky
-sky_surface = pygame.image.load('graphics/MySky.png').convert()
-ground_surface = pygame.image.load('graphics/Myground.png').convert()  # background image for ground
+sky_surface = pygame.image.load('graphics/Sky3.jpg').convert()
+sky_surface = pygame.transform.scale(sky_surface, (800, 300))
+ground_surface = pygame.image.load('graphics/ground4.png').convert()  # background image for ground
+ground_surface = pygame.transform.scale(ground_surface, (800, 300))
 
 # score_surf = test_font.render('Welcome to My First Game', False, (64, 64, 64))  # background text
 # score_rect = score_surf.get_rect(center=(400, 50))
@@ -193,14 +203,14 @@ player_gravity = 0
 score = 0
 
 # Intro Screen
-player_stand = pygame.image.load('graphics/player/player_stand.png').convert_alpha() # image for player during end screen
-player_stand = pygame.transform.scale2x(player_stand)
+player_stand = pygame.image.load('graphics/player/zombie_stand.png').convert_alpha() # image for player during end screen
+player_stand = pygame.transform.scale(player_stand, (200, 200))
 player_stand_rect = player_stand.get_rect(center = (400 , 200))
 
-game_name = test_font.render('Pixel Runner' , False , (111 , 196 , 169))
+game_name = test_font.render('Brainless Zombies' , False , (220 , 214 , 212))
 game_name_rect = game_name.get_rect(center = (400 , 80))
 
-game_message = test_font.render('Press Space to run' , False , (111 , 196 , 169))
+game_message = test_font.render('Press Space to run' , False , (220 , 214 , 212))
 game_message_rect = game_message.get_rect(center = (400 , 340))
 
 
@@ -294,13 +304,16 @@ while True:                            # while this condition is true the screen
         # game_active = collisions(player_rect , obstacle_rect_list)
         
     else:    
-        screen.fill((94,129,162))
+        #screen.fill((94,129,162))
+        back = pygame.image.load('graphics/bgr1.png').convert()
+        back = pygame.transform.scale(back, (800, 400))
+        screen.blit(back , (0 , 0))
         screen.blit(player_stand , player_stand_rect)
         obstacle_rect_list.clear()
         player_rect.midbottom = (80 , 300)
         player_gravity = 0
-        score_message = test_font.render(f'Your score: {score}' , False , (111,196,169))
-        score_message_rect = score_message.get_rect(center = (400 , 300))
+        score_message = test_font.render(f'Your score: {score}' , False , (220 , 214 , 212))
+        score_message_rect = score_message.get_rect(center = (400 , 350))
         screen.blit(game_name , game_name_rect)
 
         if score == 0:
